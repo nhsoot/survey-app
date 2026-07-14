@@ -1,0 +1,62 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-stat {
+    border-left: 4px solid #0d6efd;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: #0d6efd;
+}
+
+.survey-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.chart-container {
+    height: 300px;
+    margin: 20px 0;
+}
+
+.question-type-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 200px;
+    }
+}
