@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Survei S1 Teknik Komputer</title>
+    <!-- Tailwind CSS untuk layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pustaka Utama Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin untuk memunculkan angka di atas grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Plugin untuk garis batas 80% -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
+</head>
+<body class="bg-gray-50 p-8">
+
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">
+            Rekap Kepuasan Pemangku Kepentingan Program Studi S1 Teknik Komputer
+        </h2>
+        <p class="text-center text-gray-500 mb-8">(Periode Terkini)</p>
+
+        <!-- Wadah untuk Grafik -->
+        <div class="relative h-[500px] w-full">
+            <canvas id="rekapChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Mendaftarkan plugin tambahan Chart.js
+        Chart.register(ChartDataLabels, window['chartjs-plugin-annotation']);
+
+        // 1. Data Dummy (Nantinya ini yang diganti dengan PHP/Database)
+        const labels = [
+            ['Mahasiswa', '(LKMI)'], 
+            ['EDOM', '(Puas)'], 
+            ['Wisudawan', '(Rata-rata)'], 
+            'Dosen', 
+            ['Tenaga', 'Kependidikan'], 
+            ['Mitra', 'Industri'], 
+            ['Pengguna', 'Lulusan']
+        ];
+        
+        const nilaiTerkini = [88.5, 96.2, 98.1, 93.4, 57.5, 91.2, 60.0];
+        const nilaiTarget = [85, 95, 95, 90, 75, 85, 70];
+
+        // 2. Logika Warna Dinamis: Hijau jika Tercapai, Merah/Oranye jika Belum
+        const warnaTerkini = nilaiTerkini.map((nilai, index) => {
+            if (nilai >= nilaiTarget[index]) {
+                return 'rgba(46, 204, 113, 0.9)'; // Hijau (Tercapai)
+            } else if (nilai < 60) {
+                return 'rgba(231, 76, 60, 0.9)'; // Merah (Sangat Kurang)
+            } else {
+                return 'rgba(243, 156, 18, 0.9)'; // Oranye (Kurang)
+            }
+        });
+
+        // 3. Konfigurasi Grafik
+        const ctx = document.getElementById('rekapChart').getContext('2d');
+        const rekapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Nilai Terkini (%)',
+                        data: nilaiTerkini,
+                        backgroundColor: warnaTerkini,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'Target (%)',
+                        data: nilaiTarget,
+                        backgroundColor: 'rgba(52, 152, 219, 0.4)', // Biru muda transparan
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110, // Diberi ruang di atas untuk angka label
+                        ticks: { stepSize: 20 }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top', align: 'end' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + '%';
+                            }
+                        }
+                    },
+                    // Plugin Datalabels (Memunculkan angka di atas grafik)
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'bottom',
+                        color: '#000',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: function(value, context) {
+                            // Hanya tampilkan label untuk "Nilai Terkini" (Dataset index 0)
+                            if(context.datasetIndex === 0) return value + '%';
+                            return ''; // Kosongkan angka untuk dataset Target agar tidak tumpang tindih
+                        }
+                    },
+                    // Plugin Annotation (Garis Batas Target 80%)
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 80,
+                                yMax: 80,
+                                borderColor: 'rgba(39, 174, 96, 1)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                label: {
+                                    display: true,
+                                    content: 'Target Minimum 80%',
+                                    position: 'end',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                    color: 'rgba(39, 174, 96, 1)',
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

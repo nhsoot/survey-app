@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="container">
-        <div class="login-card card">
+        <div class="login-card card mx-auto">
             <div class="card-body">
                 <div class="login-logo">
                     <i class="bi bi-person-badge"></i>
@@ -104,16 +104,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">
                         <i class="bi bi-box-arrow-in-right"></i> Login
                     </button>
-                </form>
-                
-                <div class="mt-4 text-center">
-                    <a href="index.php" class="text-muted text-decoration-none small">
+
+                    <!-- TOMBOL PERALIHAN KE LOGIN ADMIN -->
+                    <a href="admin/login.php" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-shield-lock"></i> Login sebagai Admin/Dosen
+                    </a>
+
+                    <!-- TOMBOL KEMBALI KE BERANDA -->
+                    <a href="index.php" class="btn btn-outline-secondary w-100">
                         <i class="bi bi-arrow-left"></i> Kembali ke Beranda
                     </a>
-                </div>
+                </form>
             </div>
         </div>
     </div>

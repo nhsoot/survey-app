@@ -93,76 +93,32 @@ if (isset($_GET['added'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        body {
-            background: #f0f2f5;
-        }
-        .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .card-header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 1rem 1.5rem;
-            font-weight: 600;
-            border-radius: 12px 12px 0 0 !important;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        .form-label {
-            font-weight: 600;
-            color: #2d3748;
-        }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .question-type-badge {
-            font-size: 0.75rem;
-            padding: 3px 10px;
-            border-radius: 12px;
-            background: #e9ecef;
-            color: #495057;
-        }
-        .list-group-item {
-            border-left: 4px solid #667eea;
-            margin-bottom: 8px;
-            border-radius: 8px !important;
-        }
+        body { background: #f0f2f5; }
+        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card-header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; font-weight: 600; border-radius: 12px 12px 0 0 !important; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .form-label { font-weight: 600; color: #2d3748; }
+        .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+        .question-type-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; background: #e9ecef; color: #495057; }
+        .list-group-item { border-left: 4px solid #667eea; margin-bottom: 8px; border-radius: 8px !important; }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <i class="bi bi-clipboard-data"></i> Survey App
-            </a>
+            <a class="navbar-brand" href="index.php"><i class="bi bi-clipboard-data"></i> Survey App</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="surveys.php"><i class="bi bi-file-earmark-text"></i> Survei</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="surveys.php"><i class="bi bi-file-earmark-text"></i> Survei</a></li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -170,12 +126,8 @@ if (isset($_GET['added'])) {
 
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0">
-                <i class="bi bi-list-ul"></i> Pertanyaan: <?php echo htmlspecialchars($survey['title']); ?>
-            </h4>
-            <a href="surveys.php" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali
-            </a>
+            <h4 class="mb-0"><i class="bi bi-list-ul"></i> Pertanyaan: <?php echo htmlspecialchars($survey['title']); ?></h4>
+            <a href="surveys.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
         </div>
 
         <?php if ($error): ?>
@@ -195,9 +147,7 @@ if (isset($_GET['added'])) {
         <div class="row">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <i class="bi bi-question-circle"></i> Daftar Pertanyaan
-                    </div>
+                    <div class="card-header"><i class="bi bi-question-circle"></i> Daftar Pertanyaan</div>
                     <div class="card-body">
                         <?php if (count($questions) > 0): ?>
                             <div class="list-group">
@@ -239,9 +189,7 @@ if (isset($_GET['added'])) {
             
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
-                        <i class="bi bi-plus-circle"></i> Tambah Pertanyaan
-                    </div>
+                    <div class="card-header"><i class="bi bi-plus-circle"></i> Tambah Pertanyaan</div>
                     <div class="card-body">
                         <form method="POST">
                             <div class="mb-3">
@@ -253,15 +201,21 @@ if (isset($_GET['added'])) {
                                 <label class="form-label">Tipe Pertanyaan</label>
                                 <select name="type" class="form-select" id="questionType" onchange="toggleOptions()">
                                     <option value="multiple_choice">Pilihan Ganda</option>
-                                    <option value="likert">Skala Likert</option>
+                                    <option value="likert" selected>Skala Likert</option>
                                     <option value="text">Teks Singkat</option>
                                     <option value="paragraph">Paragraf</option>
                                 </select>
                             </div>
                             
                             <div class="mb-3" id="optionsContainer">
-                                <label class="form-label">Pilihan (satu per baris)</label>
-                                <textarea name="options" class="form-control" rows="4" placeholder="Sangat Puas&#10;Puas&#10;Cukup&#10;Kurang&#10;Sangat Kurang"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Pilihan (satu per baris)</label>
+                                    <!-- TOMBOL PRESET SAKTI -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;" onclick="isiPresetKepuasan()">
+                                        <i class="bi bi-magic"></i> Preset Kepuasan
+                                    </button>
+                                </div>
+                                <textarea name="options" id="optionsTextarea" class="form-control" rows="5" placeholder="Sangat Puas&#10;Puas&#10;Cukup&#10;Kurang&#10;Sangat Kurang"></textarea>
                                 <small class="text-muted">Untuk pilihan ganda dan skala likert</small>
                             </div>
                             
@@ -290,6 +244,13 @@ if (isset($_GET['added'])) {
             container.style.display = 'block';
         }
     }
+
+    // FUNGSI ISI PRESET KEPUSAN OTOMATIS
+    function isiPresetKepuasan() {
+        const textarea = document.getElementById('optionsTextarea');
+        textarea.value = "Sangat Puas\nPuas\nCukup\nKurang\nSangat Kurang";
+    }
+
     toggleOptions();
     </script>
 

@@ -30,13 +30,53 @@ if (!empty($survey['end_date']) && $today > $survey['end_date']) {
     die('Mohon maaf, deadline pengisian survei ini telah berakhir.');
 }
 
-// 4. CEK IZIN MAHASISWA (Apakah di-assign ke survei ini?)
- $stmt = $pdo->prepare("SELECT * FROM survey_assignments WHERE survey_id = ? AND student_id = ?");
- $stmt->execute([$survey_id, $student_id]);
- $assignment = $stmt->fetch();
+// 4. CEK IZIN MAHASISWA
+$stmt = $pdo->prepare("SELECT * FROM survey_assignments WHERE survey_id = ? AND student_id = ?");
+$stmt->execute([$survey_id, $student_id]);
+$assignment = $stmt->fetch();
 
 if (!$assignment) {
-    die('Anda tidak memiliki izin untuk mengisi survei ini.');
+    tampilkanPesanError("Akses Ditolak", "Anda tidak memiliki izin untuk mengisi survei ini.");
+}
+
+// 5. CEK APAKAH SUDAH PERNAH MENGISI (Batas 1x)
+if ($assignment['is_completed']) {
+    tampilkanPesanError("Survei Selesai", "Anda sudah pernah mengisi survei ini. Terima kasih atas partisipasi Anda!");
+}
+
+// FUNGSI BANTUAN UNTUK TAMPILAN ERROR RAPI (Taruh di atas/bawah file)
+function tampilkanPesanError($judul, $pesan) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?= $judul ?></title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    </head>
+    <body class="bg-light d-flex align-items-center min-vh-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center">
+                    <div class="card shadow border-0 p-4" style="border-radius: 15px;">
+                        <div class="card-body">
+                            <i class="bi bi-info-circle-fill text-primary" style="font-size: 3.5rem;"></i>
+                            <h4 class="mt-3 fw-bold"><?= $judul ?></h4>
+                            <p class="text-muted"><?= $pesan ?></p>
+                            <a href="../index.php" class="btn btn-primary mt-2">
+                                <i class="bi bi-house"></i> Kembali ke Beranda
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit();
 }
 
 // 5. CEK APAKAH SUDAH PERNAH MENGISI (Batas 1x)
@@ -57,12 +97,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Simpan ke tabel responses (sekarang pakai student_id, bukan token)
-        $stmt = $pdo->prepare("INSERT INTO responses (survey_id, student_id) VALUES (?, ?)");
-        $stmt->execute([$survey['id'], $student_id]);
+        // 1. Buat token unik acak 32 karakter agar tidak pernah bernilai string kosong
+        $respondent_token = bin2hex(random_bytes(16));
+
+        // 2. Simpan ke tabel responses beserta respondent_token
+        $stmt = $pdo->prepare("INSERT INTO responses (survey_id, student_id, respondent_token) VALUES (?, ?, ?)");
+        $stmt->execute([$survey['id'], $student_id, $respondent_token]);
         $response_id = $pdo->lastInsertId();
         
-        // Simpan jawaban
+        // 3. Simpan jawaban
         foreach ($questions as $q) {
             $answer = $_POST['question_' . $q['id']] ?? '';
             if (!empty($answer) || !$q['is_required']) {
@@ -71,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Update tabel assignment menjadi is_completed = TRUE
+        // 4. Update tabel assignment menjadi is_completed = TRUE
         $stmt = $pdo->prepare("UPDATE survey_assignments SET is_completed = TRUE, completed_at = NOW() WHERE survey_id = ? AND student_id = ?");
         $stmt->execute([$survey['id'], $student_id]);
 

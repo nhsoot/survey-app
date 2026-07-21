@@ -127,7 +127,7 @@ $page_title = 'Login';
 </head>
 <body>
     <div class="container">
-        <div class="login-card card">
+        <div class="login-card card mx-auto">
             <div class="card-body">
                 <div class="login-logo">
                     <i class="bi bi-clipboard-data"></i>
@@ -164,9 +164,19 @@ $page_title = 'Login';
                             <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">
                         <i class="bi bi-box-arrow-in-right"></i> Login
                     </button>
+
+                    <!-- TOMBOL PERALIHAN KE LOGIN MAHASISWA -->
+                    <a href="../login_mahasiswa.php" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-person-badge"></i> Login sebagai Mahasiswa
+                    </a>
+
+                    <!-- TOMBOL KEMBALI KE BERANDA -->
+                    <a href="../index.php" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left"></i> Kembali ke Beranda
+                    </a>
                 </form>
                 
                 <div class="mt-4 text-center">

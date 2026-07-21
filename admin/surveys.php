@@ -38,7 +38,7 @@ try {
 } catch (PDOException $e) {
     die("Error: " . $e->getMessage());
 }
-?> nav
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
