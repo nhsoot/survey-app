@@ -25,7 +25,7 @@ try {
     $classes = $stmtClasses->fetchAll(PDO::FETCH_COLUMN);
 
     // 2. Ambil data mahasiswa (kolom kelas diikutkan untuk keperluan filter)
-    $stmtStudents = $pdo->query("SELECT id, nim, name, kelas FROM students ORDER BY name ASC");
+    $stmtStudents = $pdo->query("SELECT id, nim, name, kelas FROM students ORDER BY kelas ASC, name ASC");
     $students = $stmtStudents->fetchAll();
 } catch (PDOException $e) {
     $classes = [];
@@ -95,23 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="index.php"><i class="bi bi-clipboard-data"></i> Survey App</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="surveys.php"><i class="bi bi-file-earmark-text"></i> Survei</a></li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?php $active_menu = 'surveys'; ?>
+<?php include __DIR__ . '/includes/navbar_admin.php'; ?>
 
     <div class="container mt-4">
         <div class="row">
@@ -203,22 +188,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <i class="bi bi-inbox fs-4 d-block mb-2"></i> Belum ada data mahasiswa.
                                         </div>
                                     <?php else: ?>
-                                        <?php foreach ($students as $student): ?>
-                                            <?php 
-                                            // Cek apakah mahasiswa sudah terpilih sebelumnya (untuk survey_edit.php)
-                                            // Jika kamu memasang ini di survey_create.php, abaikan baris ini atau set false
-                                            $is_selected = isset($assigned_student_ids) && in_array($student['id'], $assigned_student_ids) ? 'checked' : ''; 
+                                        <?php $prev_kelas = null; ?>
+                                            <?php foreach ($students as $student): ?>
+                                            <?php
+                                            $is_selected = isset($assigned_student_ids) && in_array($student['id'], $assigned_student_ids) ? 'checked' : '';
+                                            $kelas_now = $student['kelas'] ?? '';
                                             ?>
-                                            <!-- Wrapper tiap mahasiswa (memiliki data-kelas untuk filter) -->
-                                            <div class="form-check student-item mb-2 border-bottom pb-2" data-kelas="<?= htmlspecialchars($student['kelas'] ?? '') ?>">
-                                                <input class="form-check-input student-checkbox" type="checkbox" name="student_ids[]" 
-                                                    value="<?= $student['id'] ?>" id="std_<?= $student['id'] ?>" <?= $is_selected ?> style="cursor: pointer;">
-                                                <label class="form-check-label w-100" for="std_<?= $student['id'] ?>" style="cursor: pointer;">
-                                                    <span class="fw-medium text-dark"><?= htmlspecialchars($student['nim'] . ' - ' . $student['name']) ?></span> 
-                                                    <span class="badge bg-light text-dark border ms-1"><?= htmlspecialchars($student['kelas'] ?? '-') ?></span>
-                                                </label>
-                                            </div>
-                                        <?php endforeach; ?>
+                                                <?php if ($kelas_now !== $prev_kelas): ?>
+                                                    <!-- 🏷️ Header pemisah kelas (muncul tiap ganti kelompok kelas) -->
+                                                    <div class="kelas-header mt-3 mb-2" data-kelas="<?= htmlspecialchars($kelas_now) ?>">
+                                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary fw-semibold">
+                                                            <i class="bi bi-mortarboard-fill"></i> Kelas <?= htmlspecialchars($kelas_now !== '' ? $kelas_now : '-') ?>
+                                                        </span>
+                                                    </div>
+                                                    <?php $prev_kelas = $kelas_now; ?>
+                                                <?php endif; ?>
+
+                                                <!-- Wrapper tiap mahasiswa (memiliki data-kelas untuk filter) -->
+                                                <div class="form-check student-item mb-2 border-bottom pb-2" data-kelas="<?= htmlspecialchars($kelas_now) ?>">
+                                                    <input class="form-check-input student-checkbox" type="checkbox" name="student_ids[]"
+                                                        value="<?= $student['id'] ?>" id="std_<?= $student['id'] ?>" <?= $is_selected ?> style="cursor: pointer;">
+                                                    <label class="form-check-label w-100" for="std_<?= $student['id'] ?>" style="cursor: pointer;">
+                                                        <span class="fw-medium text-dark"><?= htmlspecialchars($student['nim'] . ' - ' . $student['name']) ?></span>
+                                                    </label>
+                                                </div>
+                                            <?php endforeach; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -241,23 +235,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- JAVASCRIPT UNTUK FILTER, CHECKBOX, DAN COUNTER -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const filterKelas = document.getElementById('filterKelas');
-        const studentItems = document.querySelectorAll('.student-item');
-        const checkboxes = document.querySelectorAll('.student-checkbox');
-        const btnPilihSemua = document.getElementById('btnPilihSemua');
-        const btnBatalSemua = document.getElementById('btnBatalSemua');
-        const selectedCount = document.getElementById('selectedCount');
+        const filterKelas    = document.getElementById('filterKelas');
+        const studentItems   = document.querySelectorAll('.student-item');                 // untuk Pilih/Batalkan
+        const filterableItems = document.querySelectorAll('.student-item, .kelas-header'); // untuk show/hide (termasuk header kelas)
+        const checkboxes     = document.querySelectorAll('.student-checkbox');
+        const btnPilihSemua  = document.getElementById('btnPilihSemua');
+        const btnBatalSemua  = document.getElementById('btnBatalSemua');
+        const selectedCount  = document.getElementById('selectedCount');
 
-        // 1. Fungsi untuk memperbarui jumlah badge "X Terpilih"
+        // 1. Update badge "X Terpilih"
         function updateCounter() {
             let count = 0;
-            checkboxes.forEach(cb => {
-                if (cb.checked) count++;
-            });
-            
+            checkboxes.forEach(cb => { if (cb.checked) count++; });
             selectedCount.innerText = count + " Terpilih";
-            
-            // Ubah warna badge (abu-abu jika 0, biru jika ada yang dipilih)
             if (count === 0) {
                 selectedCount.classList.replace('bg-primary', 'bg-secondary');
             } else {
@@ -265,23 +255,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // 2. Efek Menyembunyikan/Menampilkan Mahasiswa saat dropdown kelas dipilih
+        // 2. Filter kelas → sembunyikan/tampilkan mahasiswa DAN header kelasnya
         filterKelas.addEventListener('change', function() {
             const selectedKelas = this.value;
-
-            studentItems.forEach(item => {
+            filterableItems.forEach(item => {
                 const optKelas = item.getAttribute('data-kelas');
-                
-                // Tampilkan jika 'all' dipilih, atau jika kelas cocok
-                if (selectedKelas === 'all' || optKelas === selectedKelas) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = (selectedKelas === 'all' || optKelas === selectedKelas) ? '' : 'none';
             });
         });
 
-        // 3. Tombol "Pilih Semua" (Hanya mencentang mahasiswa yang sedang TAMPIL di layar)
+        // 3. Pilih Semua (hanya yang sedang tampil)
         btnPilihSemua.addEventListener('click', function() {
             studentItems.forEach(item => {
                 if (item.style.display !== 'none') {
@@ -289,10 +272,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (cb) cb.checked = true;
                 }
             });
-            updateCounter(); // Perbarui angka
+            updateCounter();
         });
 
-        // 4. Tombol "Batalkan" (Hanya menghapus centang mahasiswa yang sedang TAMPIL di layar)
+        // 4. Batalkan (hanya yang sedang tampil)
         btnBatalSemua.addEventListener('click', function() {
             studentItems.forEach(item => {
                 if (item.style.display !== 'none') {
@@ -300,15 +283,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (cb) cb.checked = false;
                 }
             });
-            updateCounter(); // Perbarui angka
+            updateCounter();
         });
 
-        // 5. Dengarkan setiap klik manual pada checkbox agar counter selalu update
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', updateCounter);
-        });
+        // 5. Counter update saat checkbox diklik manual
+        checkboxes.forEach(cb => { cb.addEventListener('change', updateCounter); });
 
-        // Jalankan hitungan counter saat halaman pertama kali dibuka (Berguna untuk halaman Edit)
         updateCounter();
     });
     </script>

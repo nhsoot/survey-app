@@ -79,38 +79,24 @@ try {
         .btn-group .btn {
             padding: 0.25rem 0.5rem;
         }
+                /* === Kolom Aksi: rapi & jelas === */
+        .btn-aksi {
+            white-space: nowrap;          /* teks tidak pecah ke 2 baris */
+        }
+        .btn-aksi .label-aksi {
+            margin-left: 2px;
+        }
+        /* 📱 Di layar kecil (HP), sembunyikan teks → tampil ikon saja (tooltip tetap jalan) */
+        @media (max-width: 768px) {
+            .btn-aksi .label-aksi {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <i class="bi bi-clipboard-data"></i> Survey App
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="surveys.php"><i class="bi bi-file-earmark-text"></i> Survei</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                    </li>
-                                        <!-- Tambahkan di menu navbar -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="export_diagram.php"><i class="bi bi-image"></i> Ekspor Diagram</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php $active_menu = 'surveys'; $show_export_diagram = true; ?>
+    <?php include __DIR__ . '/includes/navbar_admin.php'; ?>
 
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -162,27 +148,42 @@ try {
                                         <td><?php echo $survey['response_count']; ?></td>
                                         <td><?php echo date('d/m/Y H:i', strtotime($survey['created_at'])); ?></td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="../responden/survey.php?token=<?php echo md5($survey['id'] . 'secret'); ?>" 
-                                                   target="_blank" class="btn btn-sm btn-success" title="Link Survei">
-                                                    <i class="bi bi-link-45deg"></i>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <!-- 1. Link Survei -->
+                                                <a href="../responden/survey.php?token=<?php echo md5($survey['id'] . 'secret'); ?>"
+                                                target="_blank"
+                                                class="btn btn-sm btn-success btn-aksi"
+                                                title="Salin / Bagikan Link Survei">
+                                                    <i class="bi bi-link-45deg"></i> <span class="label-aksi">Link</span>
                                                 </a>
-                                                <a href="questions.php?survey_id=<?php echo $survey['id']; ?>" 
-                                                   class="btn btn-sm btn-secondary" title="Kelola Pertanyaan">
-                                                    <i class="bi bi-list-ul"></i>
+
+                                                <!-- 2. Kelola Pertanyaan -->
+                                                <a href="questions.php?survey_id=<?php echo $survey['id']; ?>"
+                                                class="btn btn-sm btn-secondary btn-aksi"
+                                                title="Kelola Pertanyaan">
+                                                    <i class="bi bi-list-ul"></i> <span class="label-aksi">Pertanyaan</span>
                                                 </a>
-                                                <a href="results.php?survey_id=<?php echo $survey['id']; ?>" 
-                                                   class="btn btn-sm btn-info" title="Lihat Hasil">
-                                                    <i class="bi bi-graph-up"></i>
+
+                                                <!-- 3. Lihat Hasil -->
+                                                <a href="results.php?survey_id=<?php echo $survey['id']; ?>"
+                                                class="btn btn-sm btn-info btn-aksi"
+                                                title="Lihat Hasil &amp; Grafik">
+                                                    <i class="bi bi-graph-up"></i> <span class="label-aksi">Hasil</span>
                                                 </a>
-                                                <a href="survey_edit.php?id=<?php echo $survey['id']; ?>" 
-                                                   class="btn btn-sm btn-warning" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
+
+                                                <!-- 4. Edit -->
+                                                <a href="survey_edit.php?id=<?php echo $survey['id']; ?>"
+                                                class="btn btn-sm btn-warning btn-aksi"
+                                                title="Edit Survei">
+                                                    <i class="bi bi-pencil"></i> <span class="label-aksi">Edit</span>
                                                 </a>
-                                                <a href="?delete=1&id=<?php echo $survey['id']; ?>" 
-                                                   class="btn btn-sm btn-danger" title="Hapus"
-                                                   onclick="return confirm('Hapus survei ini?')">
-                                                    <i class="bi bi-trash"></i>
+
+                                                <!-- 5. Hapus -->
+                                                <a href="?delete=1&id=<?php echo $survey['id']; ?>"
+                                                class="btn btn-sm btn-danger btn-aksi btn-hapus"
+                                                title="Hapus Survei"
+                                                data-title="<?php echo htmlspecialchars($survey['title'], ENT_QUOTES); ?>">
+                                                    <i class="bi bi-trash"></i> <span class="label-aksi">Hapus</span>
                                                 </a>
                                             </div>
                                         </td>
@@ -206,5 +207,18 @@ try {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ TEMPEL SCRIPT KONFIRMASI HAPUS DI SINI -->
+    <script>
+    document.querySelectorAll('.btn-hapus').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            var judul = btn.getAttribute('data-title');
+            if (!confirm('Hapus survei "' + judul + '"?\nSemua data responden ikut terhapus!')) {
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
+
 </body>
 </html>

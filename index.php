@@ -12,6 +12,7 @@ require_once 'config/database.php';
 
 // Cek apakah yang login mahasiswa
 $is_student = isset($_SESSION['student_id']);
+$is_admin = isset($_SESSION['admin_id']);
 
 // TAMBAHKAN KODE INI: Ambil daftar ID survei yang SUDAH diisi oleh mahasiswa ini
 $completed_survey_ids = [];
@@ -57,18 +58,25 @@ foreach ($statsData as $row) {
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-clipboard-data"></i> Survey App</a>
-            <div class="d-flex">
-                <?php if ($is_student): ?>
-                    <span class="navbar-text text-white me-3">Halo, <?= htmlspecialchars($_SESSION['student_name'] ?? 'Mahasiswa') ?></span>
-                    <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-                <?php else: ?>
-                    <a href="admin/login.php" class="btn btn-outline-light btn-sm me-2">Login Admin/Dosen</a>
-                    <a href="login_mahasiswa.php" class="btn btn-light btn-sm">Login Mahasiswa</a>
-                <?php endif; ?>
-            </div>
-        </div>
+    <div class="container">
+    <a class="navbar-brand fw-bold" href="index.php"><i class="bi bi-clipboard-data"></i> Survey App</a>
+    <div class="d-flex align-items-center">
+    <?php if ($is_admin): ?>
+        <!-- 👤 Cabang ADMIN: navbar mengakui admin + tombol balik ke panel -->
+        <span class="navbar-text text-white me-3"><i class="bi bi-shield-lock"></i> Halo, Admin</span>
+        <a href="admin/index.php" class="btn btn-light btn-sm me-2"><i class="bi bi-speedometer2"></i> Ke Panel Admin</a>
+        <a href="admin/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+    <?php elseif ($is_student): ?>
+        <!-- 🎓 Cabang MAHASISWA (seperti semula) -->
+        <span class="navbar-text text-white me-3">Halo, <?= htmlspecialchars($_SESSION['student_name'] ?? 'Mahasiswa') ?></span>
+        <a href="logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+    <?php else: ?>
+        <!-- 👋 Cabang TAMU (seperti semula) -->
+        <a href="admin/login.php" class="btn btn-outline-light btn-sm me-2">Login Admin/Dosen</a>
+        <a href="login_mahasiswa.php" class="btn btn-light btn-sm">Login Mahasiswa</a>
+    <?php endif; ?>
+    </div>
+    </div>
     </nav>
 
     <div class="container py-5">
